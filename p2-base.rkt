@@ -27,9 +27,8 @@
   [((? symbol? expr) typeenv)
    (let* ([result (lookup expr typeenv)])
      (if (equal? result #f) 'error result))]
-  
-  ; Builtins
- 
+
+  ; Builtin
   [((list '+ a b) typeenv)
    (if (and (equal? 'num (typeof a typeenv))
             (equal? 'num (typeof b typeenv)))
@@ -80,23 +79,55 @@
   [((list 'len a) typeenv)
    (if (equal? 'num (typeof a typeenv))
        'num 'error)]
- 
-  [(_ typenv) 'error]
 
+  
+  ;(typeof '(g (f 3)) '((f . ((num) num)) (g . ((num) str))))
+  
   ; Function Calls
-  ; 
+  [(expr typeenv)
+   (let* ([funcid (first expr)] ;f
+          [functype (typeof funcid typeenv)] ; '((num) num)
+          ; funcall '(3) typeenv '((num) num)
+          [restexpr (funcall (rest expr) typeenv functype)]) 
+     restexpr)]
+         
+  [(_ typenv) 'error]
+  
   )
 
 ; Helper functions for Task 1
 
 #|
+  Recurse through args to see if types match with the function input.
+  Returns the desired output type of function if successful otherwise error.
+|#
+(define (funcall funcargs typeenv functype)
+  (let* ([expected (first functype)] ; '(num)
+         ;'((f 3)) -> funcargs
+         [actualinputs (map (lambda (arg) (typeof arg typeenv)) funcargs)]); '(num)
+    (if (and (equal? (length expected) (length actualinputs)) (comparelst expected actualinputs))
+        (rest functype)
+        'error)))
+
+#|
+  Function that takes in two lists and conpares to see if equal,
+  return #f if not.
+
+  lst 1 = '(num num)
+  lst 2 = '((num) (num))
+|#
+  
+(define (comparelst lst1 lst2)
+  (if (and (empty? lst1) (empty? lst2)) #t
+     (and (equal? (first lst1) (first lst2)) (comparelst (rest lst1) (rest lst2))) 
+  ))
+
+#|
 (lookup key alst)
   elem: A key in the association list
   alst: An association list 
-
   Returns the value corresponding to the first time the key appears in the
   association list, or #f if the key does not exist.
-
   Examples:
   > (lookup 'b '((a . 3) (b . 4)))
   4
