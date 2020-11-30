@@ -16,21 +16,42 @@
 
   Returns the type of the expression expr: 'num, 'str, 'bool, 'error
 |#
-(define (typeof expr typeenv)
-  (cond
-    ; Constants
-    [(number? expr) 'num]
-    ; TODO
+(define/match (typeof expr typeenv)
 
-    ; Identifiers
-    ; TODO
+  ; Constants
+  [((? number? expr) typeenv) 'num]
+  [((? boolean? expr) typeenv) 'bool]
+  [((? string? expr) typeenv) 'str]
+    
+  ; Identifiers
+  [((? symbol? expr) typeenv)
+   (let* ([result (lookup expr typeenv)])
+     (if (equal? result #f) 'error result))]
+  
+  ; Builtins
+  ;[(lst typeenv)
+  ; (let* ([fn-symbol (first lst)])
+  ;   (cond
+  ;     [(and (equal? fn-symbol '+) (equal? 'num (typeof (second lst) typeenv)) ]))]
 
-    ; Builtins
-    ; TODO
 
-    ; Function Calls
-    ; TODO
-  ))
+  ;;
+  [((list '+ (? equal? 'num (typeof a typeenv)) (? equal? 'num (typeof b typeenv)) typeenv) 'num]
+  [((list '-  (? number? a) (? number? b)) typeenv) 'num]
+  [((list '* (? number? a) (? number? b)) typeenv) 'num]
+  [((list '/ (? number? a) (? number? b)) typeenv) 'num]
+  [((list '> (? number? a) (? number? b)) typeenv) 'bool]
+  [((list '>= (? number? a) (? number? b)) typeenv) 'bool]
+  [((list '= (? number? a) (? number? b)) typeenv) 'bool]
+  [((list '! (? number? a)) typeenv) 'bool]
+  [((list '++ (? string? a) (? string? b)) typeenv) 'str]
+  [((list 'num->str (? number? a)) typeenv) 'str]
+  [((list 'len (? string? a)) typeenv) 'num]
+  [(_ typenv) 'error]
+
+  ; Function Calls
+  ; TODO
+  )
 
 ; Helper functions for Task 1
 
@@ -50,8 +71,15 @@
   > (lookup 'c '((a . 3) (b . 4) (b . 5)))
   #f
 |#
-(define (lookup key alst)
-  (void))
+(define (lookup expr alst)
+  (cond
+    [(equal? alst '()) #f]
+    [else
+     ;check first element
+     (let* ([first-entry (first alst)])
+       (if (equal? expr (car first-entry))
+           (cdr first-entry)
+           (lookup expr (rest alst))))]))
 
 ; Add your helper functions here
 
@@ -69,23 +97,23 @@
 |#
 (define (typeo expr env type)
   (conde
-    ; constants: numbero, stringo, and boolo are miniKanren builtin relations
-    ((numbero expr)
-     (== type 'num))
-    ; TODO
+   ; constants: numbero, stringo, and boolo are miniKanren builtin relations
+   ((numbero expr)
+    (== type 'num))
+   ; TODO
 
-    ; identifier: symbolo is a miniKanren builtin relation
-    ; TODO
+   ; identifier: symbolo is a miniKanren builtin relation
+   ; TODO
 
-    ; builtins
-    ; TODO
+   ; builtins
+   ; TODO
 
-    ; function calls
-    ; TODO
+   ; function calls
+   ; TODO
 
-    ; function definitions
-    ; TODO
-    ))
+   ; function definitions
+   ; TODO
+   ))
 
 
 ; Helper functions for Task 2
