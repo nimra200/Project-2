@@ -29,28 +29,62 @@
      (if (equal? result #f) 'error result))]
   
   ; Builtins
-  ;[(lst typeenv)
-  ; (let* ([fn-symbol (first lst)])
-  ;   (cond
-  ;     [(and (equal? fn-symbol '+) (equal? 'num (typeof (second lst) typeenv)) ]))]
+ 
+  [((list '+ a b) typeenv)
+   (if (and (equal? 'num (typeof a typeenv))
+            (equal? 'num (typeof b typeenv)))
+       'num 'error)]
 
+  [((list '- a b) typeenv)
+   (if (and (equal? 'num (typeof a typeenv))
+            (equal? 'num (typeof b typeenv)))
+       'num 'error)]
 
-  ;;
-  [((list '+ (? equal? 'num (typeof a typeenv)) (? equal? 'num (typeof b typeenv)) typeenv) 'num]
-  [((list '-  (? number? a) (? number? b)) typeenv) 'num]
-  [((list '* (? number? a) (? number? b)) typeenv) 'num]
-  [((list '/ (? number? a) (? number? b)) typeenv) 'num]
-  [((list '> (? number? a) (? number? b)) typeenv) 'bool]
-  [((list '>= (? number? a) (? number? b)) typeenv) 'bool]
-  [((list '= (? number? a) (? number? b)) typeenv) 'bool]
-  [((list '! (? number? a)) typeenv) 'bool]
-  [((list '++ (? string? a) (? string? b)) typeenv) 'str]
-  [((list 'num->str (? number? a)) typeenv) 'str]
-  [((list 'len (? string? a)) typeenv) 'num]
+  [((list '* a b) typeenv)
+   (if (and (equal? 'num (typeof a typeenv))
+            (equal? 'num (typeof b typeenv)))
+       'num 'error)]
+
+  [((list '/ a b) typeenv)
+   (if (and (equal? 'num (typeof a typeenv))
+            (equal? 'num (typeof b typeenv)))
+       'num 'error)]
+
+  [((list '> a b) typeenv)
+   (if (and (equal? 'num (typeof a typeenv))
+            (equal? 'num (typeof b typeenv)))
+       'bool 'error)]
+  [((list '>= a b) typeenv)
+   (if (and (equal? 'num (typeof a typeenv))
+            (equal? 'num (typeof b typeenv)))
+       'bool 'error)]
+
+  [((list '= a b) typeenv)
+   (if (and (equal? 'num (typeof a typeenv))
+            (equal? 'num (typeof b typeenv)))
+       'bool 'error)]
+  
+  [((list '! a) typeenv)
+   (if (equal? 'num (typeof a typeenv))
+       'bool 'error)]
+
+  [((list '++ a b) typeenv)
+   (if (and (equal? 'str (typeof a typeenv))
+            (equal? 'str (typeof b typeenv)))
+       'str 'error)]
+
+  [((list 'num->str a) typeenv)
+   (if (equal? 'num (typeof a typeenv))
+       'str 'error)]
+  
+  [((list 'len a) typeenv)
+   (if (equal? 'num (typeof a typeenv))
+       'num 'error)]
+ 
   [(_ typenv) 'error]
 
   ; Function Calls
-  ; TODO
+  ; 
   )
 
 ; Helper functions for Task 1
