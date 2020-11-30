@@ -105,8 +105,9 @@
   (let* ([expected (first functype)] ; '(num)
          ;'((f 3)) -> funcargs
          [actualinputs (map (lambda (arg) (typeof arg typeenv)) funcargs)]); '(num)
-    (if (and (equal? (length expected) (length actualinputs)) (comparelst expected actualinputs))
-        (rest functype)
+    (if (and (equal? (length expected) (length actualinputs))
+             (comparelst expected actualinputs))
+        (second functype) ; the second item of func-type is always the expected-output
         'error)))
 
 #|
