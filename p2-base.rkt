@@ -37,20 +37,24 @@
   [((list '> a b) typeenv) (typehelp a b 'num 'bool typeenv)]
   [((list '>= a b) typeenv) (typehelp a b 'num 'bool typeenv)]
   [((list '= a b) typeenv) (typehelp a b 'num 'bool typeenv)] 
+
   [((list '! a) typeenv) 
    (if (equal? 'num (typeof a typeenv))
        'bool 'error)]
+
   [((list '++ a b) typeenv) (typehelp a b 'str typeenv)]
+
   [((list 'num->str a) typeenv)
    (if (equal? 'num (typeof a typeenv))
        'str 'error)]
+
   [((list 'len a) typeenv)
    (if (equal? 'num (typeof a typeenv))
        'num 'error)]
 
   
   ; Function Calls
-  [(expr typeenv)
+  [(expr typeenv) ;expr must be a list
    (let* ([funcid (first expr)]
           [functype (typeof funcid typeenv)]
           [restexpr (funcall (rest expr) typeenv functype)]) 
@@ -62,7 +66,7 @@
 
 ; Helper functions for Task 1
 #|
-   Takes in two args with the *same* expected type, and a *different* function output type.
+   Takes in two args with the expected type, and a function output type.
    If the params have the same type, then return output type. Else, return error.
 |#
 (define (typehelp a b expected-input expected-output env)
