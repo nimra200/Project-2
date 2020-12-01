@@ -29,99 +29,68 @@
      (if (equal? result #f) 'error result))]
 
   ; Builtin
-  [((list '+ a b) typeenv)
-   (if (and (equal? 'num (typeof a typeenv))
-            (equal? 'num (typeof b typeenv)))
-       'num 'error)]
-
-  [((list '- a b) typeenv)
-   (if (and (equal? 'num (typeof a typeenv))
-            (equal? 'num (typeof b typeenv)))
-       'num 'error)]
-
-  [((list '* a b) typeenv)
-   (if (and (equal? 'num (typeof a typeenv))
-            (equal? 'num (typeof b typeenv)))
-       'num 'error)]
-
-  [((list '/ a b) typeenv)
-   (if (and (equal? 'num (typeof a typeenv))
-            (equal? 'num (typeof b typeenv)))
-       'num 'error)]
-
-  [((list '> a b) typeenv)
-   (if (and (equal? 'num (typeof a typeenv))
-            (equal? 'num (typeof b typeenv)))
-       'bool 'error)]
-  [((list '>= a b) typeenv)
-   (if (and (equal? 'num (typeof a typeenv))
-            (equal? 'num (typeof b typeenv)))
-       'bool 'error)]
-
-  [((list '= a b) typeenv)
-   (if (and (equal? 'num (typeof a typeenv))
-            (equal? 'num (typeof b typeenv)))
-       'bool 'error)]
-  
-  [((list '! a) typeenv)
+  [((list '+ a b) typeenv) (typehelp a b 'num typeenv)]
+  [((list '- a b) typeenv) (typehelp a b 'num typeenv)]
+  [((list '* a b) typeenv) (typehelp a b 'num typeenv)]
+  [((list '/ a b) typeenv) (typehelp a b 'num typeenv)]
+  [((list '> a b) typeenv) (typehelp a b 'bool typeenv)]
+  [((list '>= a b) typeenv) (typehelp a b 'bool typeenv)]
+  [((list '= a b) typeenv) (typehelp a b 'bool typeenv)] 
+  [((list '! a) typeenv) 
    (if (equal? 'num (typeof a typeenv))
        'bool 'error)]
-
-  [((list '++ a b) typeenv)
-   (if (and (equal? 'str (typeof a typeenv))
-            (equal? 'str (typeof b typeenv)))
-       'str 'error)]
-
+  [((list '++ a b) typeenv) (typehelp a b 'str typeenv)]
   [((list 'num->str a) typeenv)
    (if (equal? 'num (typeof a typeenv))
        'str 'error)]
-  
   [((list 'len a) typeenv)
    (if (equal? 'num (typeof a typeenv))
        'num 'error)]
 
   
-  ;(typeof '(g (f 3)) '((f . ((num) num)) (g . ((num) str))))
-  
   ; Function Calls
   [(expr typeenv)
-   (let* ([funcid (first expr)] ;f
-          [functype (typeof funcid typeenv)] ; '((num) num)
-          ; funcall '(3) typeenv '((num) num)
-          [func-output-type (funcall (rest expr) typeenv functype)]) 
-     func-output-type)]
+   (let* ([funcid (first expr)]
+          [functype (typeof funcid typeenv)]
+          [restexpr (funcall (rest expr) typeenv functype)]) 
+     restexpr)]
          
   [(_ typenv) 'error]
   
   )
 
 ; Helper functions for Task 1
+#|
+   Takes in a list of parameters to check their types and if types match, then return the type else error.
+|#
+(define (typehelp a b expectype env)
+  (if (and (equal? expectype (typeof a env))
+           (equal? expectype (typeof b env)))
+      expectype 'error))
 
 #|
   Recurse through args to see if types match with the function input.
   Returns the desired output type of function if successful otherwise error.
 |#
 (define (funcall funcargs typeenv functype)
-  (let* ([expected-inputs (first functype)] ; '(num)
-         ;'((f 3)) -> funcargs
-         [actual-inputs (map (lambda (arg) (typeof arg typeenv)) funcargs)]); '(num)
-    (if (and (equal? (length expected-inputs) (length actual-inputs))
-             (comparelst expected-inputs actual-inputs))
-        (second functype) ; the second item of func-type is always the expected-output
+  (let* ([expected (first functype)]
+         [actualinputs (map (lambda (arg) (typeof arg typeenv)) funcargs)])
+    (if (and (equal? (length expected) (length actualinputs))
+             (comparelst expected actualinputs))
+        (second functype)
         'error)))
 
 #|
   Function that takes in two lists and conpares to see if equal,
   return #f if not.
-
   lst 1 = '(num num)
   lst 2 = '((num) (num))
 |#
   
 (define (comparelst lst1 lst2)
   (if (and (empty? lst1) (empty? lst2)) #t
-     (and (equal? (first lst1) (first lst2)) (comparelst (rest lst1) (rest lst2))) 
-  ))
+      (and (equal? (first lst1) (first lst2)) (comparelst (rest lst1) (rest lst2))) 
+      ))
 
 #|
 (lookup key alst)
@@ -147,7 +116,6 @@
            (cdr first-entry)
            (lookup expr (rest alst))))]))
 
-; Add your helper functions here
 
 ;-------------------------------------------------------------------------------
 ; * Task 2: A Type Inferencer Relation in miniKanren
