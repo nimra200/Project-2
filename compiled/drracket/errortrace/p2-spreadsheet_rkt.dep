@@ -1,0 +1,1 @@
+("7.8" racket ("e4ea7e15e28ca4f161facad5c7dba6fa3658a4da" . "b2ae83214046fff704ec5717baf15066aa439f36") #"/Users/Nimra/Desktop/P2/p2-base.rkt" (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt"))

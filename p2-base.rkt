@@ -138,15 +138,68 @@
 (define (typeo expr env type)
   (conde
    ; constants: numbero, stringo, and boolo are miniKanren builtin relations
-   ((numbero expr)
-    (== type 'num))
-   ; TODO
+   ((numbero expr) (== type 'num))
+    ((stringo expr) (== type 'str))
+    ((boolo expr) (== type 'bool))
 
    ; identifier: symbolo is a miniKanren builtin relation
-   ; TODO
+   ((symbolo expr) (lookupo expr env type))
 
    ; builtins
-   ; TODO
+   ((fresh (a b)
+           (conde ((== expr (list '+ a b))
+                   (typeo a env 'num)
+                   (typeo b env 'num)
+                   (== type 'num))
+                  
+                  ((== expr (list '- a b))
+                   (typeo a env 'num)
+                   (typeo b env 'num)
+                   (== type 'num))
+
+                  ((== expr (list '* a b))
+                   (typeo a env 'num)
+                   (typeo b env 'num)
+                   (== type 'num))
+
+                  ((== expr (list '/ a b))
+                   (typeo a env 'num)
+                   (typeo b env 'num)
+                   (== type 'num))
+
+                  ((== expr (list '> a b))
+                   (typeo a env 'num)
+                   (typeo b env 'num)
+                   (== type 'bool))
+
+                  ((== expr (list '>= a b))
+                   (typeo a env 'num)
+                   (typeo b env 'num)
+                   (== type 'bool))
+
+                  ((== expr (list '= a b))
+                   (typeo a env 'num)
+                   (typeo b env 'num)
+                   (== type 'bool))
+
+                  ((== expr (list '++ a b))
+                   (typeo a env 'str)
+                   (typeo b env 'str)
+                   (== type 'str))
+
+                  ((== expr (list 'num->str a))
+                   (typeo a env 'num)
+                   (== type 'str))
+
+                  ((== expr (list '! a))
+                   (typeo a env 'bool)
+                   (== type 'bool))
+
+                  ((== expr (list 'len a))
+                   (typeo a env 'str)
+                   (== type 'num)))))
+
+              
 
    ; function calls
    ; TODO
@@ -158,6 +211,10 @@
 
 ; Helper functions for Task 2
 
+(define (boolo obj)
+  (conde
+   ((== obj #t))
+   ((== obj #f))))
 #|
 (lookupo key alst value)
   elem: A key in the association list
@@ -167,7 +224,11 @@
   The relational form of the `lookup` function
 |#
 (define (lookupo key alst value)
-  (void))
+  (fresh (fkey fval rest)
+         (== (cons (cons fkey fval) rest) alst)
+         (conde
+          ((== key fkey) (== value fval))
+          ((=/= key fkey) (lookupo rest key value)))))
 
 
 ; Add your helper functions here
