@@ -33,18 +33,26 @@
   [((list '- a b) typeenv) (typehelp a b 'num typeenv)]
   [((list '* a b) typeenv) (typehelp a b 'num typeenv)]
   [((list '/ a b) typeenv) (typehelp a b 'num typeenv)]
-  [((list '> a b) typeenv) (typehelp a b 'bool typeenv)]
-  [((list '>= a b) typeenv) (typehelp a b 'bool typeenv)]
-  [((list '= a b) typeenv) (typehelp a b 'bool typeenv)] 
+  
+  ; the following built-ins take in *two numbers* and output a *bool*
+  ; we can't use typehelp here since the input type != output type
+  [((list '> a b) typeenv) (typehelp-diff-output a b 'num 'bool typeenv)]
+  [((list '> a b) typeenv) (typehelp-diff-output a b 'num 'bool typeenv)]
+  [((list '>= a b) typeenv) (typehelp-diff-output a b 'num 'bool typeenv)]
+  [((list '= a b) typeenv) (typehelp-diff-output a b 'num 'bool typeenv)] 
+
   [((list '! a) typeenv) 
-   (if (equal? 'num (typeof a typeenv))
+   (if (equal? 'bool (typeof a typeenv))
        'bool 'error)]
+
   [((list '++ a b) typeenv) (typehelp a b 'str typeenv)]
+
   [((list 'num->str a) typeenv)
    (if (equal? 'num (typeof a typeenv))
        'str 'error)]
+
   [((list 'len a) typeenv)
-   (if (equal? 'num (typeof a typeenv))
+   (if (equal? 'str (typeof a typeenv))
        'num 'error)]
 
   
@@ -61,7 +69,17 @@
 
 ; Helper functions for Task 1
 #|
-   Takes in a list of parameters to check their types and if types match, then return the type else error.
+   Takes in two args with the *same* expected type, and a *different* function output type.
+   If the params have the same type, then return output type. Else, return error.
+|#
+(define (typehelp-diff-output a b expected-input expected-output env)
+  (if (and (equal? expected-input (typeof a env))
+           (equal? expected-input (typeof b env)))
+      expected-output 'error))
+
+#|
+   Takes in two parameters with the *same* expected type. The function output type is the *same* as the input.
+   The paramater types are checked. If types match, then return the type else 'error.
 |#
 (define (typehelp a b expectype env)
   (if (and (equal? expectype (typeof a env))
