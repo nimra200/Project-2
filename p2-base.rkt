@@ -57,8 +57,8 @@
   [(expr typeenv) ;expr must be a list
    (let* ([funcid (first expr)]
           [functype (typeof funcid typeenv)]
-          [restexpr (funcall (rest expr) typeenv functype)]) 
-     restexpr)]
+          [fnoutput (funcall (rest expr) typeenv functype)]) 
+     fnoutput)]
          
   [(_ typenv) 'error]
   
