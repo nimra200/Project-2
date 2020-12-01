@@ -88,8 +88,8 @@
    (let* ([funcid (first expr)] ;f
           [functype (typeof funcid typeenv)] ; '((num) num)
           ; funcall '(3) typeenv '((num) num)
-          [restexpr (funcall (rest expr) typeenv functype)]) 
-     restexpr)]
+          [func-output-type (funcall (rest expr) typeenv functype)]) 
+     func-output-type)]
          
   [(_ typenv) 'error]
   
@@ -102,11 +102,11 @@
   Returns the desired output type of function if successful otherwise error.
 |#
 (define (funcall funcargs typeenv functype)
-  (let* ([expected (first functype)] ; '(num)
+  (let* ([expected-inputs (first functype)] ; '(num)
          ;'((f 3)) -> funcargs
-         [actualinputs (map (lambda (arg) (typeof arg typeenv)) funcargs)]); '(num)
-    (if (and (equal? (length expected) (length actualinputs))
-             (comparelst expected actualinputs))
+         [actual-inputs (map (lambda (arg) (typeof arg typeenv)) funcargs)]); '(num)
+    (if (and (equal? (length expected-inputs) (length actual-inputs))
+             (comparelst expected-inputs actual-inputs))
         (second functype) ; the second item of func-type is always the expected-output
         'error)))
 
