@@ -65,7 +65,7 @@
                  (run 1 (out) (typeo '((lambda (x) x) 3) '() out))
                  '(num)))
 
-    (test-equal? "(run 1 (out) (typeo '((lambda (x) (g x))) '((g . ((num) num))) out))"
+    (test-equal? "(run 1 (out) (typeo '(lambda (x) (g x)) '((g . ((num) num))) out))"
                  (run 1 (out) (typeo '(lambda (x) (g x)) '((g . ((num) num))) out))
                  '(((num) num)))
 
