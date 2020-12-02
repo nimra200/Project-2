@@ -203,6 +203,11 @@
    ; an example is
    ; > (run* (x) (typeo 'f '((f . ((num) num)) (g . ((num) str))) x))
    ;'( ((num) num) )
+
+   ; Given a function call, check if
+   ; 1. the function output has the correct type.
+   ; 2. all the function args have the correct types
+   
    ((fresh (func-id func-args func-inputs func-output)
            (== expr (cons func-id func-args))
            (typeo func-id env (cons func-inputs func-output)) ; a function type looks like '((<input type> ...) <output>)
