@@ -144,9 +144,9 @@
 
    ; identifier: symbolo is a miniKanren builtin relation
    ((symbolo expr) (lookupo expr env type))
-
-   ; builtins
+   ; Builtins 
    ((fresh (a b)
+           
            (conde ((== expr (list '+ a b))
                    (typeo a env 'num)
                    (typeo b env 'num)
@@ -198,11 +198,17 @@
                   ((== expr (list 'len a))
                    (typeo a env 'str)
                    (== type 'num)))))
-
-              
-
-   ; function calls
-   ; TODO
+   
+   ;function calls
+   ; an example is
+   ; > (run* (x) (typeo 'f '((f . ((num) num)) (g . ((num) str))) x))
+   ;'( ((num) num) )
+   ((fresh (func-id func-args func-inputs func-output)
+           (== expr (cons func-id func-args))
+           (typeo func-id env (cons func-inputs func-output)) ; a function type looks like '((<input type> ...) <output>)
+           (== type func-output) ;the function output should match with the given type
+           (type-listo func-args env func-inputs))) ; each function argument should match with its expected type
+                  
 
    ; function definitions
    ; TODO
@@ -210,6 +216,26 @@
 
 
 ; Helper functions for Task 2
+#| type-listo takes in:
+   a list of expressions, a type environment, and a list of types corresponding to those expressions.
+
+  Sample usage:
+  >>> (run* (types) (type-listo '(1 a #t) '((a . str)) types))
+  '((num str bool))
+|#
+(define (type-listo exprs env types)
+  (conde
+   ((== exprs '() ) (== types '() )) 
+   
+   ; check if each expression in <exprs> has the correct type by:
+   ; 1. ensuring the the first expression has the correct type
+   ; 2. recursively checking the rest of the expressions have the correct types 
+
+   ((fresh (expr exprs^ type types^)
+          (== exprs (cons expr exprs^))
+          (== types (cons type types^))
+          (typeo expr env type)
+          (type-listo exprs^ env types^)))))
 
 (define (boolo obj)
   (conde
