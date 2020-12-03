@@ -210,7 +210,7 @@
    ; function definitions
    ((fresh (param body param_type r_type env^ pairs)
            (conde ((== expr (list 'lambda param body))
-                   (== type (list param_type r_type))
+                   (== type (cons param_type r_type))
                    (pairo param param_type pairs) ; create an association between the params and their types
                    (appendo pairs env env^) ; add the new pair to the env
                    (typeo body env^ r_type))))) ; recrusively call typeo on the updated env
