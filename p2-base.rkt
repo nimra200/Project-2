@@ -259,7 +259,7 @@
          (== (cons (cons fkey fval) rest) alst)
          (conde
           ((== key fkey) (== value fval))
-          ((=/= key fkey) (lookupo rest key value)))))
+          ((=/= key fkey) (lookupo key rest value))))) ; the order of args to lookupo was incorrect
 
 
 ; Add your helper functions here
