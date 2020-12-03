@@ -68,6 +68,10 @@
     (test-equal? "(run 1 (out) (typeo '(lambda (x) (g x)) '((g . ((num) num))) out))"
                  (run 1 (out) (typeo '(lambda (x) (g x)) '((g . ((num) num))) out))
                  '(((num) num)))
+    
+    (test-equal? "(run 1 (out) (typeo '((lambda(x) x) 3) '((x . str)) out))" ; test case from Lisa on Piazza @560
+                 (run 1 (out) (typeo '((lambda(x) x) 3) '((x . str)) out))
+                 '(num))
 
 
    (test-suite
