@@ -1,7 +1,7 @@
 #lang racket #| CSC324 Fall 2020: Project 2 |#
 
 (require "mk.rkt")
-; (require racket/pretty) ; you might find the prettyprint function useful
+;(require racket/pretty) ; you might find the prettyprint function useful
 
 (provide typeof typeo)
 
@@ -37,28 +37,24 @@
   [((list '> a b) typeenv) (typehelp a b 'num 'bool typeenv)]
   [((list '>= a b) typeenv) (typehelp a b 'num 'bool typeenv)]
   [((list '= a b) typeenv) (typehelp a b 'num 'bool typeenv)] 
-
   [((list '! a) typeenv) 
    (if (equal? 'num (typeof a typeenv))
        'bool 'error)]
-
   [((list '++ a b) typeenv) (typehelp a b 'str typeenv)]
-
   [((list 'num->str a) typeenv)
    (if (equal? 'num (typeof a typeenv))
        'str 'error)]
-
   [((list 'len a) typeenv)
    (if (equal? 'num (typeof a typeenv))
        'num 'error)]
 
   
   ; Function Calls
-  [(expr typeenv) ;expr must be a list
+  [(expr typeenv)
    (let* ([funcid (first expr)]
           [functype (typeof funcid typeenv)]
-          [fnoutput (funcall (rest expr) typeenv functype)]) 
-     fnoutput)]
+          [restexpr (funcall (rest expr) typeenv functype)]) 
+     restexpr)]
          
   [(_ typenv) 'error]
   
@@ -66,7 +62,7 @@
 
 ; Helper functions for Task 1
 #|
-   Takes in two args with the expected type, and a function output type.
+   Takes in two args with the *same* expected type, and a *different* function output type.
    If the params have the same type, then return output type. Else, return error.
 |#
 (define (typehelp a b expected-input expected-output env)
@@ -138,15 +134,18 @@
 (define (typeo expr env type)
   (conde
    ; constants: numbero, stringo, and boolo are miniKanren builtin relations
-   ((numbero expr) (== type 'num))
-    ((stringo expr) (== type 'str))
-    ((boolo expr) (== type 'bool))
+   ((numbero expr)
+    (== type 'num))
+   ((stringo expr)
+    (== type 'str))
+   ((boolo expr)
+    (== type 'bool))
 
    ; identifier: symbolo is a miniKanren builtin relation
-   ((symbolo expr) (lookupo expr env type))
-   ; Builtins 
+   ((symbolo expr)
+    (lookupo expr env type))
+
    ((fresh (a b)
-           
            (conde ((== expr (list '+ a b))
                    (typeo a env 'num)
                    (typeo b env 'num)
@@ -198,40 +197,58 @@
                   ((== expr (list 'len a))
                    (typeo a env 'str)
                    (== type 'num)))))
-   
-   ;function calls
-   ; an example is
-   ; > (run* (x) (typeo 'f '((f . ((num) num)) (g . ((num) str))) x))
-   ;'( ((num) num) )
 
-   ; Given a function call, check if
-   ; 1. the function output has the correct type.
-   ; 2. all the function args have the correct types
-   
+  
+   ; function calls
    ((fresh (func-id func-args func-inputs func-output)
            (== expr (cons func-id func-args))
            (typeo func-id env (cons func-inputs func-output)) ; a function type looks like '((<input type> ...) <output>)
            (== type func-output) ;the function output should match with the given type
            (type-listo func-args env func-inputs))) ; each function argument should match with its expected type
-                  
+
 
    ; function definitions
-   ; TODO
+   ((fresh (param body param_type r_type env^ pairs)
+           (conde ((== expr (list 'lambda param body))
+                   (== type (list param_type r_type))
+                   (pairo param param_type pairs) ; create an association between the params and their types
+                   (appendo pairs env env^) ; add the new pair to the env
+                   (typeo body env^ r_type))))) ; recrusively call typeo on the updated env
+                 
    ))
 
 
 ; Helper functions for Task 2
+
+#| Pairo takes in:
+   the params to the lambda function as well as their types and the current mapping pairs 
+   The function will then create a mapping of the params to their param_types
+
+  >>> (run 1 (v) (pairo (list 'x 'y) (list 'str 'num) v))
+   '(((x . str) (y . num)))
+|#
+(define (pairo param param_type pairs)
+  (conde ((== param '())
+          (== param_type '())
+          (== pairs '()))
+         ((fresh (fstparam restparam fstptype restptype fpair pairs^)
+                 (== param (cons fstparam restparam))
+                 (== param_type (cons fstptype restptype))
+                 (== fpair (cons fstparam fstptype))
+                 (appendo (list fpair) pairs^ pairs)
+                 (pairo restparam restptype pairs^)))))
+
+  
+
 #| type-listo takes in:
    a list of expressions, a type environment, and a list of types corresponding to those expressions.
-
   Sample usage:
   >>> (run* (types) (type-listo '(1 a #t) '((a . str)) types))
   '((num str bool))
 |#
 (define (type-listo exprs env types)
   (conde
-   ((== exprs '() ) (== types '() )) 
-   
+   ((== exprs '() ) (== types '() ))
    ; check if each expression in <exprs> has the correct type by:
    ; 1. ensuring the the first expression has the correct type
    ; 2. recursively checking the rest of the expressions have the correct types 
@@ -241,11 +258,7 @@
           (== types (cons type types^))
           (typeo expr env type)
           (type-listo exprs^ env types^)))))
-
-(define (boolo obj)
-  (conde
-   ((== obj #t))
-   ((== obj #f))))
+   
 #|
 (lookupo key alst value)
   elem: A key in the association list
@@ -254,6 +267,7 @@
 
   The relational form of the `lookup` function
 |#
+
 (define (lookupo key alst value)
   (fresh (fkey fval rest)
          (== (cons (cons fkey fval) rest) alst)
@@ -263,4 +277,22 @@
 
 
 ; Add your helper functions here
+(define (boolo obj)
+  (conde ((== obj #f))
+         ((== obj #t))))
+
+(define (appendo xs ys xsys)
+  (conde ((== xs'())
+          (== ys xsys))
+         ((fresh (x xs^ xsys^)
+                 (== xs (cons x xs^))
+                 (== xsys (cons x xsys^))
+                 (appendo xs^ ys xsys^)))))
+
+
+                 
+         
+
+
+
 
