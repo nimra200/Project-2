@@ -220,9 +220,11 @@
 
 ; Helper functions for Task 2
 
-#| Pairo takes in:
-   the params to the lambda function as well as their types and the current mapping pairs 
-   The function will then create a mapping of the params to their param_types
+#| Pairo is a relation which takes
+   the params for a lambda function and a list of types.
+   The relation holds true if <pairs> is a list of pairs which map a parameter to its type.
+
+   Sample usage:
 
   >>> (run 1 (v) (pairo (list 'x 'y) (list 'str 'num) v))
    '(((x . str) (y . num)))
