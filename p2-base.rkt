@@ -202,7 +202,7 @@
    ; function calls
    ((fresh (func-id func-args func-inputs func-output)
            (== expr (cons func-id func-args))
-           (typeo func-id env (cons func-inputs func-output)) ; a function type looks like '((<input type> ...) <output>)
+           (typeo func-id env (list func-inputs func-output)) ; a function type looks like '((<input type> ...) <output>)
            (== type func-output) ;the function output should match with the given type
            (type-listo func-args env func-inputs))) ; each function argument should match with its expected type
 
