@@ -210,10 +210,14 @@
    ; function definitions
    ((fresh (param body param_type r_type env^ pairs)
            (conde ((== expr (list 'lambda param body))
-                   (== type (cons param_type r_type))
+                   (== type (list param_type r_type))
                    (pairo param param_type pairs) ; create an association between the params and their types
                    (appendo pairs env env^) ; add the new pair to the env
                    (typeo body env^ r_type))))) ; recrusively call typeo on the updated env
+                  
+                   
+   
+   
                  
    ))
 
@@ -221,10 +225,10 @@
 ; Helper functions for Task 2
 
 #| Pairo is a relation which takes
-   the params for a lambda function and a list of types.
-   The relation holds true if <pairs> is a list of pairs which map a parameter to its type.
+    the params for a lambda function and a list of types.
+    The relation holds true if <pairs> is a list of pairs which map a parameter to its type.
 
-   Sample usage:
+    Sample usage:
 
   >>> (run 1 (v) (pairo (list 'x 'y) (list 'str 'num) v))
    '(((x . str) (y . num)))
