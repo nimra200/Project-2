@@ -36,14 +36,21 @@
     typeenv: an environment with identifiers and their types
 
     Returns a new environment with the definitions and their types added.
+
+    Sample usage: 
+    > (create-env '((voting-age 18) (concat (lambda (x y) (++ x y))) ) '())
+     '((concat (str str) str) (voting-age . num))
 |#
 (define (create-env definitions typeenv)
-  (if (equal? definitions '())
+  (if (empty? definitions)
       typeenv
       (let* ([def (first definitions)]
              [id (first def)]
              [expr (second def)]
-             [type (typeof expr typeenv)]
+             [type-lst (run* (out) (typeo expr typeenv out))] ; a list of possible types
+             [type (if (empty? type-lst)
+                       'error
+                       (first type-lst))]
              [id-type-pair (cons id type)]
              [typeenv^ (cons id-type-pair typeenv)]) ; add the first definition to the environment
              
