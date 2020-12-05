@@ -3,9 +3,8 @@
 ; If you would like us to test this file with our correct implementation of
 ; "typeof" and "typeo", change the import to "p2-soln.rkt" before submitting
 ; your code.
-(require "p2-base.rkt")
+(require "p2-base.rkt") ; (require "p2-soln.rkt")
 (require "mk.rkt")
-;(require "p2-soln.rkt")
 
 ; (require racket/pretty) ; you might find the prettyprint function useful
 
@@ -27,16 +26,15 @@
          [columns (rest (third spreadsheet))] ; exclude the symbol 'columns
          [env (create-env defs '())]
          )
-    (check-col-types columns env))) ; return a list of bools that rep. whether the column type is correctly annotated
+   
+    (check-col-types columns env '())
+    )) ; return a list of bools that rep. whether the column type is correctly annotated
 
-; Helper functions for task 3
 #|
    (create-env definitions typeenv)
     definitions: A list of definitions. Ex: '((voting-age 18) (concat (lambda (x y) (++ x y))) )
     typeenv: an environment with identifiers and their types
-
     Returns a new environment with the definitions and their types added.
-
     Sample usage: 
     > (create-env '((voting-age 18) (concat (lambda (x y) (++ x y))) ) '())
      '((concat (str str) str) (voting-age . num))
@@ -55,11 +53,48 @@
              [typeenv^ (cons id-type-pair typeenv)]) ; add the first definition to the environment
              
         (create-env (rest definitions) typeenv^)
-  )))
+        )))
 
-  (define (check-col-types cols env)
-    (void)) ;TODO implement this!
- 
+              
+(define (check-col-types cols env rlst)
+  (if (empty? cols)
+      rlst
+      (let* ([fst (first cols)]
+             [rst (rest cols)]
+             [expected-type (second fst)]
+             [items (third fst)]
+             [columntype (first items)])
+        (if (equal? columntype 'values)
+            (check-col-types rst env (append (list (check-value (rest items) expected-type)) rlst))
+            (if (equal? columntype 'computed)
+                (check-col-types rst env (append (list (check-compute (rest items) expected-type env)) rlst))
+                'error))
+            
+        )))
+
+
+(define (check-value items expected-type)
+  (if (empty? items)
+      #t
+      (let* ([fst (first items)]
+             [rst (rest items)]
+             [check (equal? (typeof fst '()) expected-type)])
+        (if (equal? check #f)
+            #f     
+            (check-value rst expected-type)))))
+        
+(define (check-compute items expected-type env)
+  (void)) ; TODO
+             
+#|
+(lookup lst key)
+  Takes in a list of associations and returns a value given a key. 
+|#
+(define (lookup lst key)
+  (cond [(empty? lst) 'error]
+        [(equal? key (car (first lst)))
+         (cdr (first lst))]
+        [(lookup (rest lst) key)]))
 ;-------------------------------------------------------------------------------
 ; * Task 4: Synthesizing Programs *
 ;-------------------------------------------------------------------------------
@@ -81,6 +116,6 @@
   (syntax-rules ()
     [(fill-in lvar expr type n)
      (void) ; TODO
-    ]))
+     ]))
 
 
