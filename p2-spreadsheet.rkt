@@ -24,9 +24,9 @@
 (define (type-check-spreadsheet spreadsheet)
   (let* ([defs (rest (second spreadsheet)) ] ; exclude the symbol 'def
          [columns (rest (third spreadsheet))] ; exclude the symbol 'columns
-         [env create-env defs '()]
+         [env (create-env defs '())]
          )
-    (check-col-types cols env))) ; return a list of bools that rep. whether the column type is correctly annotated
+    (check-col-types columns env))) ; return a list of bools that rep. whether the column type is correctly annotated
 
 ; Helper functions for task 3
 #|
@@ -37,17 +37,17 @@
     Returns a new environment with the definitions and their types added.
 |#
 (define (create-env definitions typeenv)
-  (if (== definitions '())
+  (if (equal? definitions '())
       typeenv
-      (let* ([def (first definitons)]
+      (let* ([def (first definitions)]
              [id (first def)]
              [expr (second def)]
-             [type (typeof expr env)]
+             [type (typeof expr typeenv)]
              [id-type-pair (cons id type)]
-             [env^ (cons id-type-pair env)]) ; add the first definition to the environment
+             [typeenv^ (cons id-type-pair typeenv)]) ; add the first definition to the environment
              
-        (create-env (rest definitions) env^)
-  ))
+        (create-env (rest definitions) typeenv^)
+  )))
 
   (define (check-col-types cols env)
     (void)) ;TODO implement this!
