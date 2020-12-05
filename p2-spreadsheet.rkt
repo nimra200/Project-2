@@ -3,8 +3,8 @@
 ; If you would like us to test this file with our correct implementation of
 ; "typeof" and "typeo", change the import to "p2-soln.rkt" before submitting
 ; your code.
-;(require "p2-base.rkt") 
-(require "p2-soln.rkt")
+(require "p2-base.rkt") 
+;(require "p2-soln.rkt")
 
 ; (require racket/pretty) ; you might find the prettyprint function useful
 
@@ -22,11 +22,32 @@
   is correctly annotated.
 |#
 (define (type-check-spreadsheet spreadsheet)
-  (let* (; [defs      ...definitions... ]
-         ; ....
+  (let* ([defs (rest (second spreadsheet)) ] ; exclude the symbol 'def
+         [columns (rest (third spreadsheet))] ; exclude the symbol 'columns
+         [env create-env defs '()]
          )
-    (void)))
+    (check-col-types cols env))) ; return a list of bools that rep. whether the column type is correctly annotated
 
+; Helper functions for task 3
+#|
+   (create-env definitions typeenv)
+    definitions: A list of definitions. Ex: '((voting-age 18) (concat (lambda (x y) (++ x y))) )
+    typeenv: an environment with identifiers and their types
+
+    Returns a new environment with the definitions and their types added.
+|#
+(define (create-env definitions typeenv)
+  (if (== definitions '())
+      typeenv
+      (let* ([def (first definitons)]
+             [id (first def)]
+             [expr (second def)]
+             [type (typeof expr env)]
+             [id-type-pair (cons id type)]
+             [env^ (cons id-type-pair env)]) ; add the first definition to the environment
+             
+        (create-env (rest definitions) env^)
+  ))
 ;-------------------------------------------------------------------------------
 ; * Task 4: Synthesizing Programs *
 ;-------------------------------------------------------------------------------
