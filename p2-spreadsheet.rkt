@@ -48,6 +48,10 @@
              
         (create-env (rest definitions) env^)
   ))
+
+  (define (check-col-types cols env)
+    (void)) ;TODO implement this!
+ 
 ;-------------------------------------------------------------------------------
 ; * Task 4: Synthesizing Programs *
 ;-------------------------------------------------------------------------------
