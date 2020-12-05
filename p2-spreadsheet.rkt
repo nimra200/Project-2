@@ -3,7 +3,8 @@
 ; If you would like us to test this file with our correct implementation of
 ; "typeof" and "typeo", change the import to "p2-soln.rkt" before submitting
 ; your code.
-(require "p2-base.rkt") 
+(require "p2-base.rkt")
+(require "mk.rkt")
 ;(require "p2-soln.rkt")
 
 ; (require racket/pretty) ; you might find the prettyprint function useful
