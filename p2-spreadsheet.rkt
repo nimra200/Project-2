@@ -84,7 +84,16 @@
   [((cons (list id type (list 'computed expr)) rest) env^ rlst)
    
    ; computed columns
-   (void) ; TODO implement this 
+   (let* ([func-id (car expr)]
+          [func-args (cdr expr)]
+          [func-type (typeof func-id env)]
+          [expected-input-types (if (equal? func-type 'error)
+                                    '(error)
+                                    (first func-type))]
+          [is-type-correct (col-checker func-args env expected-input-types)] ; #t if each col in <func-args> has the expected type
+          [rlst^ (append rlst (list is-type-correct))])
+     
+     (check-col-types rest env rlst^))
       
    ]
 
