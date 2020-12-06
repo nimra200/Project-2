@@ -75,45 +75,39 @@
    (let* ([is-correct-type (check-type vs type env)]
           [env^ (if is-correct-type
                     (cons (cons id type) env)
-                    (cons (cons id 'error) env))] ; add value column to the environment since computed columns depend on value columns
-
+                    (cons (cons id 'error) env))] ; add value column to the environment since computed columns may use them
           [rlst^ (append rlst (list is-correct-type))])
 
      (check-col-types rest env^ rlst^))]
      
-  [((cons (list id type (list 'computed expr)) rest) env^ rlst)
+  [((cons (list id type (list 'computed expr)) rest) env rlst)
    
    ; computed columns
-   (let* ([func-id (car expr)]
-          [func-args (cdr expr)]
-          [func-type (typeof func-id env)]
-          [expected-input-types (if (equal? func-type 'error)
-                                    '(error)
-                                    (first func-type))]
-          [is-type-correct (col-checker func-args env expected-input-types)]
+   (let* ([type-lst (run* (out) (typeo expr env out))] ; a list of expr types 
+          [expr-type (if (empty? type-lst) 'error (first type-lst))]
+          [is-type-correct (equal? expr-type type)]
+          [env^ (if is-type-correct ; add this column to the environment
+                    (cons (cons id type) env)
+                    (cons (cons id 'error) env))]
           [rlst^ (append rlst (list is-type-correct))])
      
      (check-col-types rest env rlst^))
       
    ]
-
+  
   )
 
-#|
- Returns true if each col in <func-args> has the expected type. False otherwise.
-|#
-(define (col-checker cols typeenv types)
-  (if (empty? cols)
-      #t
-      (and (equal? (first types) (lookup typeenv (first cols)))
-           (col-checker (rest cols) typeenv (rest types)))))
 
 (define (check-type items expected-type env)
   (if (empty? items)
       #t
       (let* ([fst (first items)]
              [rst (rest items)]
-             [check (equal? (typeof fst env) expected-type)])
+             [fst-type-lst (run* (out) (typeo fst env out))]
+             [fst-type (if (empty? fst-type-lst)
+                           'error
+                           (first fst-type-lst))]
+             [check (equal? fst-type expected-type)])
         (if (equal? check #f)
             #f     
             (check-type rst expected-type env)))))
