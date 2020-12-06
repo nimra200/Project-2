@@ -35,6 +35,7 @@
     definitions: A list of definitions. Ex: '((voting-age 18) (concat (lambda (x y) (++ x y))) )
     typeenv: an environment with identifiers and their types
     Returns a new environment with the definitions and their types added.
+
     Sample usage: 
     > (create-env '((voting-age 18) (concat (lambda (x y) (++ x y))) ) '())
      '((concat (str str) str) (voting-age . num))
@@ -55,7 +56,60 @@
         (create-env (rest definitions) typeenv^)
         )))
 
-              
+
+#| (check-col-types cols env rlst)
+    cols: a list of computed or value columns
+    env: a type environment
+    rlst: the list of bools to be returned
+
+    This function checks if each column has the correct type annotations. If so,
+    add #t to the return lst <rlst>. Otherwise, add #f to <rlst>.
+
+|#
+
+(define/match (check-col-types cols env rlst)
+  [('() env rlst) rlst]
+  
+  [((cons (list id type (cons 'values vs)) rest) env rlst)
+   ; value columns 
+   (let* ([is-correct-type (check-type vs type env)]
+          [env^ (if is-correct-type
+                    (cons (cons id type) env)
+                    (cons (cons id 'error) env))] ; add value column to the environment since computed columns depend on value columns
+
+          [rlst^ (append rlst (list is-correct-type))])
+
+     (check-col-types rest env^ rlst^))]
+     
+  [((cons (list id type (list 'computed expr)) rest) env^ rlst)
+   
+   ; computed columns
+   (void) ; TODO implement this 
+      
+   ]
+
+  )
+
+(define (col-checker cols typeenv types)
+  (if (empty? cols)
+      #t
+      (and (equal? (first types) (lookup typeenv (first cols)))
+           (col-checker (rest cols) typeenv (rest types)))))
+
+(define (check-type items expected-type env)
+  (if (empty? items)
+      #t
+      (let* ([fst (first items)]
+             [rst (rest items)]
+             [check (equal? (typeof fst env) expected-type)])
+        (if (equal? check #f)
+            #f     
+            (check-type rst expected-type env)))))
+        
+#|(define (check-compute items expected-type env)
+  (void)) ; TODO
+
+
 (define (check-col-types cols env rlst)
   (if (empty? cols)
       rlst
@@ -71,20 +125,7 @@
                 'error))
             
         )))
-
-
-(define (check-value items expected-type)
-  (if (empty? items)
-      #t
-      (let* ([fst (first items)]
-             [rst (rest items)]
-             [check (equal? (typeof fst '()) expected-type)])
-        (if (equal? check #f)
-            #f     
-            (check-value rst expected-type)))))
-        
-(define (check-compute items expected-type env)
-  (void)) ; TODO
+|#
              
 #|
 (lookup lst key)
