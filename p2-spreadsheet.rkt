@@ -91,7 +91,7 @@
                     (cons (cons id 'error) env))]
           [rlst^ (append rlst (list is-type-correct))])
      
-     (check-col-types rest env rlst^))
+     (check-col-types rest env^ rlst^))
       
    ]
   
