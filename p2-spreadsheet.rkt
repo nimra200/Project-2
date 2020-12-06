@@ -90,7 +90,7 @@
           [expected-input-types (if (equal? func-type 'error)
                                     '(error)
                                     (first func-type))]
-          [is-type-correct (col-checker func-args env expected-input-types)] ; #t if each col in <func-args> has the expected type
+          [is-type-correct (col-checker func-args env expected-input-types)]
           [rlst^ (append rlst (list is-type-correct))])
      
      (check-col-types rest env rlst^))
@@ -99,6 +99,9 @@
 
   )
 
+#|
+ Returns true if each col in <func-args> has the expected type. False otherwise.
+|#
 (define (col-checker cols typeenv types)
   (if (empty? cols)
       #t
