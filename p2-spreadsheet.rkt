@@ -91,6 +91,13 @@
      (check-col-types rest env^ rlst^))])
 
 
+#| (check-type items expected-type env)
+    items: list of values
+    expected-type: expected-type of the items in the values lst
+    env: a type environment
+    This function checks if each item in the value lst has the correct type annotations given expected-type.
+    If so, return #t. Otherwise, return #f.
+|#
 (define (check-type items expected-type env)
   (if (empty? items)
       #t
@@ -105,15 +112,6 @@
             #f     
             (check-type rst expected-type env)))))
          
-#|
-(lookup lst key)
-  Takes in a list of associations and returns a value given a key. 
-|#
-(define (lookup lst key)
-  (cond [(empty? lst) 'error]
-        [(equal? key (car (first lst)))
-         (cdr (first lst))]
-        [(lookup (rest lst) key)]))
 ;-------------------------------------------------------------------------------
 ; * Task 4: Synthesizing Programs *
 ;-------------------------------------------------------------------------------
