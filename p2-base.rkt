@@ -62,8 +62,10 @@
 
 ; Helper functions for Task 1
 #|
-   Takes in two args with the *same* expected type, and a *different* function output type.
-   If the params have the same type, then return output type. Else, return error.
+   (typehelp a b expected-input expected-ouput env)
+
+   <a>, <b>, <expected-input>, <expected-output> are types. The environment is <env>. 
+   If <a> and <b> have the expected input type, then return the expected output type.
 |#
 (define (typehelp a b expected-input expected-output env)
   (if (and (equal? expected-input (typeof a env))
@@ -71,7 +73,12 @@
       expected-output 'error))
 
 #|
-  Recurse through args to see if types match with the function input.
+(funcall funcargs typeenv functype)
+  funcargs: a list of arguments
+  typeenv: the type environment
+  functype: a function type
+
+  Recurse through the given arguments to see if types match with the function input.
   Returns the desired output type of function if successful otherwise error.
 |#
 (define (funcall funcargs typeenv functype)
@@ -83,10 +90,8 @@
         'error)))
 
 #|
-  Function that takes in two lists and conpares to see if equal,
-  return #f if not.
-  lst 1 = '(num num)
-  lst 2 = '((num) (num))
+  (comparelst lst1 lst2)
+  Takes in two lists and conpares them. Returns true if equal, false otherwise. 
 |#
   
 (define (comparelst lst1 lst2)
@@ -224,8 +229,9 @@
 
 ; Helper functions for Task 2
 
-#| Pairo is a relation which takes
-    the params for a lambda function and a list of types.
+#| (pairo param param_type pairs)
+    Pairo is a relation which takes
+    the paramaters for a lambda function and a list of types.
     The relation holds true if <pairs> is a list of pairs which map a parameter to its type.
 
     Sample usage:
@@ -246,8 +252,13 @@
 
   
 
-#| type-listo takes in:
-   a list of expressions, a type environment, and a list of types corresponding to those expressions.
+#|(type-listo exprs env types)
+  
+   exprs: a list of expressions
+   env: a type environment
+   types: a list of types
+   The relation holds true if each type in <types> corresponds to an expression in <exprs>.
+
   Sample usage:
   >>> (run* (types) (type-listo '(1 a #t) '((a . str)) types))
   '((num str bool))
@@ -283,10 +294,12 @@
 
 
 ; Add your helper functions here
+; A relation that holds true if `obj` is a boolean. 
 (define (boolo obj)
   (conde ((== obj #f))
          ((== obj #t))))
 
+; The relational form of the `append` function from lecture.
 (define (appendo xs ys xsys)
   (conde ((== xs'())
           (== ys xsys))
